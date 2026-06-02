@@ -23,7 +23,7 @@ var HelpDeskAPI = (function() {
    * 4. Copia la URL del webhook
    * 5. Pégala aquí
    */
-  var WEBHOOK_URL = 'http://localhost:5679/webhook-test/helpdesk/incidencia';
+  var WEBHOOK_URL = 'http://localhost:5678/webhook/helpdesk/incidencia';
 
   /**
    * URL para consulta de tickets (endpoint de tu API o N8N)
@@ -190,7 +190,7 @@ var HelpDeskAPI = (function() {
 
       // ===== MODO SIMULACIÓN =====
       // Si WEBHOOK_URL no está configurado, simula la respuesta para desarrollo
-      if (WEBHOOK_URL === 'AQUI_WEBHOOK_N8N' || !WEBHOOK_URL) {
+      if (WEBHOOK_URL === 'http://localhost:5678/webhook/helpdesk/incidencia' || !WEBHOOK_URL) {
         console.warn('[HelpDeskAPI] ⚠️ Webhook no configurado. Usando modo simulación.');
         console.info('[HelpDeskAPI] Configura WEBHOOK_URL en js/api.js con la URL real de tu N8N.');
         return HelpDeskAPI._simulateWebhook(payload);
@@ -528,7 +528,7 @@ var HelpDeskAPI = (function() {
     // Exponer configuración (solo lectura, para debugging)
     getConfig: function() {
       return {
-        webhookConfigured: WEBHOOK_URL !== 'AQUI_WEBHOOK_N8N',
+        webhookConfigured: WEBHOOK_URL !== 'http://localhost:5678/webhook/helpdesk/incidencia',
         ticketsApiConfigured: TICKETS_API_URL !== 'AQUI_API_TICKETS',
         timeout: REQUEST_TIMEOUT,
         version: API_VERSION

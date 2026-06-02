@@ -9,7 +9,7 @@
   "use strict";
 
   // ─── Constantes ──────────────────────────────────────────────────────────────
-  const WEBHOOK_URL = "AQUI_WEBHOOK_N8N";
+  const WEBHOOK_URL = "http://localhost:5678/webhook/helpdesk/incidencia";
   const MIN_DESC_LENGTH = 30;
   const MAX_DESC_LENGTH = 2000;
   const PHONE_REGEX = /^[+]?[\d\s\-().]{7,20}$/;
@@ -171,7 +171,7 @@
   // ─── Envío al webhook ─────────────────────────────────────────────────────────
 
   async function sendToWebhook(payload) {
-    if (WEBHOOK_URL === "AQUI_WEBHOOK_N8N") {
+    if (WEBHOOK_URL === "http://localhost:5678/webhook/helpdesk/incidencia") {
       await new Promise((r) => setTimeout(r, 1800));
       const mockAI = {
         categoria: detectCategory(payload.incidencia),
