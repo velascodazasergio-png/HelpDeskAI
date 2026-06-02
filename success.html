@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Incidencia Registrada — HelpDesk AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/form.css" />
+</head>
+<body class="success-page">
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar navbar--dark" id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <span class="logo-icon">⬡</span>
+        <span class="logo-text">HelpDesk<span class="logo-accent">AI</span></span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="tickets.html">Mis Tickets</a></li>
+        <li><a href="form.html" class="nav-cta">Nueva Incidencia</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ===== SUCCESS SECTION ===== -->
+  <main class="success-main">
+    <div class="success-container">
+
+      <!-- Confetti particles (CSS animated) -->
+      <div class="confetti-wrap" aria-hidden="true">
+        <span class="confetti-piece"></span>
+        <span class="confetti-piece"></span>
+        <span class="confetti-piece"></span>
+        <span class="confetti-piece"></span>
+        <span class="confetti-piece"></span>
+        <span class="confetti-piece"></span>
+        <span class="confetti-piece"></span>
+        <span class="confetti-piece"></span>
+      </div>
+
+      <div class="success-card">
+
+        <!-- Check animado -->
+        <div class="success-icon-wrap">
+          <div class="success-ring success-ring--outer"></div>
+          <div class="success-ring success-ring--inner"></div>
+          <div class="success-check">
+            <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+              <path class="check-path" d="M20 6L9 17l-5-5"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Heading -->
+        <div class="success-heading">
+          <h1 class="success-title">¡Incidencia registrada<br />exitosamente!</h1>
+          <p class="success-subtitle">Tu solicitud fue procesada y el equipo de soporte fue notificado.</p>
+        </div>
+
+        <!-- Ticket number -->
+        <div class="ticket-number-display">
+          <span class="tnd-label">Número de ticket</span>
+          <div class="tnd-number" id="ticketNumber">#TK-0000</div>
+          <button class="tnd-copy" id="copyTicket" title="Copiar número de ticket">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span id="copyLabel">Copiar</span>
+          </button>
+        </div>
+
+        <!-- Status cards -->
+        <div class="success-status-grid">
+          <div class="status-card status-card--telegram">
+            <div class="sc-icon">✈</div>
+            <div class="sc-content">
+              <h4>Telegram notificado</h4>
+              <p>El equipo de soporte recibió tu ticket en el canal de Telegram.</p>
+            </div>
+            <div class="sc-check">✓</div>
+          </div>
+          <div class="status-card status-card--ai">
+            <div class="sc-icon">✦</div>
+            <div class="sc-content">
+              <h4>IA clasificó tu caso</h4>
+              <p>La inteligencia artificial realizó una clasificación inicial de tu incidencia.</p>
+            </div>
+            <div class="sc-check">✓</div>
+          </div>
+          <div class="status-card status-card--db">
+            <div class="sc-icon">🗄</div>
+            <div class="sc-content">
+              <h4>Ticket almacenado</h4>
+              <p>Tu incidencia fue guardada en la base de datos para seguimiento.</p>
+            </div>
+            <div class="sc-check">✓</div>
+          </div>
+          <div class="status-card status-card--email">
+            <div class="sc-icon">✉</div>
+            <div class="sc-content">
+              <h4>Correo enviado</h4>
+              <p>Recibirás un correo de confirmación con los detalles de tu ticket.</p>
+            </div>
+            <div class="sc-check">✓</div>
+          </div>
+        </div>
+
+        <!-- AI Analysis preview -->
+        <div class="ai-preview-card">
+          <div class="apc-header">
+            <span class="apc-icon">✦</span>
+            <h3>Análisis preliminar de la IA</h3>
+            <span class="apc-badge">GPT-4</span>
+          </div>
+          <div class="apc-grid">
+            <div class="apc-item">
+              <span class="apc-label">Categoría detectada</span>
+              <span class="apc-value" id="aiCategoria">—</span>
+            </div>
+            <div class="apc-item">
+              <span class="apc-label">Prioridad asignada</span>
+              <span class="apc-value apc-value--priority" id="aiPrioridad">—</span>
+            </div>
+            <div class="apc-item apc-item--full">
+              <span class="apc-label">Resumen ejecutivo</span>
+              <span class="apc-value apc-value--text" id="aiResumen">Procesando con IA...</span>
+            </div>
+            <div class="apc-item apc-item--full">
+              <span class="apc-label">Sugerencia inicial</span>
+              <span class="apc-value apc-value--text" id="aiSugerencia">El equipo revisará los detalles de tu incidencia.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- What's next -->
+        <div class="whats-next">
+          <h3 class="wn-title">¿Qué sigue ahora?</h3>
+          <div class="wn-steps">
+            <div class="wn-step">
+              <span class="wn-num">1</span>
+              <p>El equipo de soporte revisará tu ticket y comenzará a trabajar en la solución.</p>
+            </div>
+            <div class="wn-step">
+              <span class="wn-num">2</span>
+              <p>Recibirás actualizaciones por correo electrónico sobre el estado de tu incidencia.</p>
+            </div>
+            <div class="wn-step">
+              <span class="wn-num">3</span>
+              <p>Puedes consultar el estado de tu ticket en cualquier momento usando el número asignado.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="success-actions">
+          <a href="tickets.html" class="btn btn--primary">
+            Consultar estado del ticket
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <a href="form.html" class="btn btn--ghost">
+            Registrar otra incidencia
+          </a>
+          <a href="index.html" class="btn btn--ghost">
+            Volver al inicio
+          </a>
+        </div>
+
+        <!-- SLA info -->
+        <div class="sla-notice">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <p>Tiempo estimado de respuesta según prioridad: <strong>Crítica: 1h · Alta: 4h · Media: 24h · Baja: 72h</strong></p>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="js/app.js"></script>
+  <script>
+    // ===== SUCCESS PAGE LOGIC =====
+    (function() {
+      // Recuperar datos del sessionStorage (guardados al enviar el formulario)
+      const ticketData = sessionStorage.getItem('lastTicket');
+      const ticketNumber = sessionStorage.getItem('lastTicketNumber');
+
+      // Mostrar número de ticket
+      const ticketEl = document.getElementById('ticketNumber');
+      if (ticketNumber) {
+        ticketEl.textContent = '#' + ticketNumber;
+      } else {
+        // Generar número simulado si no hay datos
+        const num = 'TK-' + String(Math.floor(1000 + Math.random() * 9000));
+        ticketEl.textContent = '#' + num;
+      }
+
+      // Cargar análisis IA si está disponible
+      if (ticketData) {
+        try {
+          const data = JSON.parse(ticketData);
+          if (data.ia) {
+            if (data.ia.categoria) document.getElementById('aiCategoria').textContent = data.ia.categoria;
+            if (data.ia.prioridad) {
+              const prioEl = document.getElementById('aiPrioridad');
+              prioEl.textContent = data.ia.prioridad;
+              prioEl.setAttribute('data-priority', data.ia.prioridad.toLowerCase());
+            }
+            if (data.ia.resumen) document.getElementById('aiResumen').textContent = data.ia.resumen;
+            if (data.ia.sugerencia) document.getElementById('aiSugerencia').textContent = data.ia.sugerencia;
+          }
+        } catch(e) {
+          console.log('No hay datos de IA disponibles aún.');
+        }
+      } else {
+        // Datos simulados para demostración
+        document.getElementById('aiCategoria').textContent = 'Red / Conectividad';
+        document.getElementById('aiPrioridad').textContent = 'Alta';
+        document.getElementById('aiPrioridad').setAttribute('data-priority', 'alta');
+        document.getElementById('aiResumen').textContent = 'Falla de conectividad reportada en área de sistemas. Se requiere intervención inmediata del equipo de infraestructura.';
+        document.getElementById('aiSugerencia').textContent = 'Verificar switch principal y estado de los cables de red. Revisar configuración de router y tabla de enrutamiento.';
+      }
+
+      // Copiar número de ticket
+      document.getElementById('copyTicket').addEventListener('click', function() {
+        const text = document.getElementById('ticketNumber').textContent;
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(text).then(function() {
+            document.getElementById('copyLabel').textContent = '¡Copiado!';
+            setTimeout(function() {
+              document.getElementById('copyLabel').textContent = 'Copiar';
+            }, 2000);
+          });
+        }
+      });
+
+    })();
+  </script>
+</body>
+</html>
