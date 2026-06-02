@@ -1,6 +1,21 @@
 /**
- * form-compiled.js — Reconectado a los IDs reales de form.html
- * Usa HelpDeskAPI (api.js) para el envío real al webhook N8N
+ * form-compiled.js — IDs sincronizados con form.html
+ *
+ * form.html usa:
+ *   id="incident-form"      ← el <form>
+ *   id="nombre"             ← inputs
+ *   id="correo"
+ *   id="telefono"
+ *   id="area"
+ *   id="incidencia"
+ *   id="prioridad"
+ *   id="descripcion"
+ *   id="submit-btn"         ← botón submit
+ *   id="btn-text"           ← span texto normal
+ *   id="btn-loader"         ← span loading
+ *   id="char-count"         ← contador de caracteres
+ *   id="fg-{campo}"         ← div.form-group wrapper  (fg-nombre, fg-correo, etc.)
+ *   id="{campo}-error"      ← span de error           (nombre-error, correo-error, etc.)
  */
 
 (function () {
@@ -12,17 +27,11 @@
   var PHONE_RE = /^[+]?[\d\s\-(). ]{7,20}$/;
   var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-  // ── Mapa de IDs reales del HTML ──────────────────────────────────────────────
-  // form.html usa:  id="incidenciaForm", id="nombre", id="correo", id="telefono",
-  //                 id="area", id="incidencia", id="prioridad", id="descripcion"
-  //                 id="submitBtn", id="charCount"
-  //                 id="fg-nombre", id="error-nombre" … (el fg- es el wrapper del grupo)
-
   // ── Validadores ─────────────────────────────────────────────────────────────
   var validators = {
     nombre: function (v) {
       v = v.trim();
-      if (!v)         return 'El nombre completo es requerido.';
+      if (!v)           return 'El nombre completo es requerido.';
       if (v.length < 3) return 'El nombre debe tener al menos 3 caracteres.';
       if (v.length > 100) return 'El nombre no puede superar 100 caracteres.';
       if (!/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s'\-]+$/.test(v))
@@ -31,13 +40,13 @@
     },
     correo: function (v) {
       v = v.trim();
-      if (!v)              return 'El correo electrónico es requerido.';
+      if (!v)               return 'El correo electrónico es requerido.';
       if (!EMAIL_RE.test(v)) return 'Ingresa un correo electrónico válido.';
       return '';
     },
     telefono: function (v) {
       v = v.trim();
-      if (!v)               return 'El teléfono es requerido.';
+      if (!v)                return 'El teléfono es requerido.';
       if (!PHONE_RE.test(v)) return 'Ingresa un número de teléfono válido (7–20 dígitos).';
       return '';
     },
@@ -60,9 +69,10 @@
   };
 
   // ── UI helpers ───────────────────────────────────────────────────────────────
+  // form.html: wrapper = id="fg-{campo}"  |  error span = id="{campo}-error"
   function setFieldError(fieldId, msg) {
-    var fg  = document.getElementById('fg-' + fieldId);   // el div.form-group
-    var err = document.getElementById('error-' + fieldId); // el span.form-error
+    var fg  = document.getElementById('fg-' + fieldId);      // div.form-group
+    var err = document.getElementById(fieldId + '-error');    // span.form-error  ← CORREGIDO
     if (fg) {
       fg.classList.toggle('is-error',   !!msg);
       fg.classList.toggle('is-success', !msg);
@@ -71,36 +81,30 @@
   }
 
   function clearAll() {
-    ['nombre','correo','telefono','area','incidencia','prioridad','descripcion']
+    ['nombre', 'correo', 'telefono', 'area', 'incidencia', 'prioridad', 'descripcion']
       .forEach(function (id) { setFieldError(id, ''); });
-    var alert = document.getElementById('formError');
-    if (alert) alert.hidden = true;
   }
 
+  // Controla el estado del botón de submit
+  // form.html: id="submit-btn"  |  id="btn-text"  |  id="btn-loader"
   function setLoading(on) {
-    var btn     = document.getElementById('submitBtn');
-    var btnText = btn && btn.querySelector('.btn-text');
-    var btnLoad = btn && btn.querySelector('.btn-loading');
-    var arrow   = btn && btn.querySelector('.btn-arrow');
+    var btn    = document.getElementById('submit-btn');   // ← CORREGIDO
+    var text   = document.getElementById('btn-text');     // ← CORREGIDO
+    var loader = document.getElementById('btn-loader');   // ← CORREGIDO
+    var arrow  = btn && btn.querySelector('.btn-arrow');
+
     if (!btn) return;
     btn.disabled = on;
-    if (btnText) btnText.hidden = on;
-    if (btnLoad) btnLoad.hidden = !on;
-    if (arrow)   arrow.hidden   = on;
+    if (text)   text.style.display   = on ? 'none' : '';
+    if (loader) loader.style.display = on ? 'inline-flex' : 'none';
+    if (arrow)  arrow.style.display  = on ? 'none' : '';
   }
 
-  function showGlobalError(msg) {
-    var el  = document.getElementById('formError');
-    var txt = document.getElementById('formErrorMsg');
-    if (!el) return;
-    if (txt) txt.textContent = msg;
-    el.hidden = false;
-    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
-
+  // Actualiza el contador de caracteres
+  // form.html: id="char-count"
   function updateCharCount() {
     var desc  = document.getElementById('descripcion');
-    var count = document.getElementById('charCount');
+    var count = document.getElementById('char-count');    // ← CORREGIDO
     if (!desc || !count) return;
     var len = desc.value.length;
     count.textContent = len + ' / ' + MAX_DESC;
@@ -116,15 +120,13 @@
       if (!el) return;
 
       el.addEventListener('blur', function () {
-        var msg = validators[id](el.value);
-        setFieldError(id, msg);
+        setFieldError(id, validators[id](el.value));
       });
 
       el.addEventListener('input', function () {
         var fg = document.getElementById('fg-' + id);
         if (fg && fg.classList.contains('is-error')) {
-          var msg = validators[id](el.value);
-          setFieldError(id, msg);
+          setFieldError(id, validators[id](el.value));
         }
         if (id === 'descripcion') updateCharCount();
       });
@@ -136,85 +138,7 @@
     e.preventDefault();
     clearAll();
 
-    var fields = ['nombre','correo','telefono','area','incidencia','prioridad','descripcion'];
-    var values = {};
-    var hasError = false;
-
-    fields.forEach(function (id) {
-      var el  = document.getElementById(id);
-      var val = el ? el.value : '';
-      values[id] = val;
-      var msg = validators[id](val);
-      if (msg) {
-        setFieldError(id, msg);
-        hasError = true;
-      }
-    });
-
-    if (hasError) {
-      var firstError = document.querySelector('.form-group.is-error');
-      if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
-    }
-
-    setLoading(true);
-
-    // Usar HelpDeskAPI (api.js) que ya maneja la URL del webhook y el modo simulación
-    if (typeof HelpDeskAPI === 'undefined') {
-      setLoading(false);
-      showGlobalError('Error interno: módulo API no cargado. Verifica que api.js esté incluido.');
-      return;
-    }
-
-    HelpDeskAPI.enviarIncidencia({
-      nombre:      values.nombre.trim(),
-      correo:      values.correo.trim().toLowerCase(),
-      telefono:    values.telefono.trim(),
-      area:        values.area,
-      incidencia:  values.incidencia,
-      prioridad:   values.prioridad,
-      descripcion: values.descripcion.trim()
-    })
-    .then(function (response) {
-      if (response.success) {
-        sessionStorage.setItem('lastTicket',       JSON.stringify(response));
-        sessionStorage.setItem('lastTicketNumber', response.ticket_number || '');
-        window.location.href = 'success.html';
-      } else {
-        showGlobalError('Hubo un problema al registrar la incidencia. Intenta nuevamente.');
-      }
-    })
-    .catch(function (err) {
-      var msg = (err && err.message)
-        ? err.message
-        : 'Error de conexión. Verifica tu internet e intenta nuevamente.';
-      showGlobalError(msg);
-    })
-    .finally
-      ? HelpDeskAPI.enviarIncidencia // already handled above — use .then/.catch chain
-      : null; // no-op fallback
-  }
-
-  // .finally polyfill via wrapper
-  function enviarConFinally(formData) {
-    setLoading(true);
-    return HelpDeskAPI.enviarIncidencia(formData)
-      .then(function (response) {
-        setLoading(false);
-        return response;
-      })
-      .catch(function (err) {
-        setLoading(false);
-        throw err;
-      });
-  }
-
-  // Reescribir handleSubmit para usar el wrapper de finally
-  function handleSubmitFinal(e) {
-    e.preventDefault();
-    clearAll();
-
-    var fields = ['nombre','correo','telefono','area','incidencia','prioridad','descripcion'];
+    var fields = ['nombre', 'correo', 'telefono', 'area', 'incidencia', 'prioridad', 'descripcion'];
     var values = {};
     var hasError = false;
 
@@ -236,9 +160,11 @@
     }
 
     if (typeof HelpDeskAPI === 'undefined') {
-      showGlobalError('Error interno: módulo API no cargado.');
+      alert('Error interno: api.js no está cargado. Verifica que el archivo existe en js/api.js');
       return;
     }
+
+    setLoading(true);
 
     var formData = {
       nombre:      values.nombre.trim(),
@@ -250,34 +176,54 @@
       descripcion: values.descripcion.trim()
     };
 
-    enviarConFinally(formData)
+    HelpDeskAPI.enviarIncidencia(formData)
       .then(function (response) {
+        setLoading(false);
         if (response.success) {
           sessionStorage.setItem('lastTicket',       JSON.stringify(response));
           sessionStorage.setItem('lastTicketNumber', response.ticket_number || '');
           window.location.href = 'success.html';
         } else {
-          showGlobalError('Hubo un problema al registrar la incidencia. Intenta nuevamente.');
+          mostrarErrorGlobal('Hubo un problema al registrar la incidencia. Intenta nuevamente.');
         }
       })
       .catch(function (err) {
+        setLoading(false);
         var msg = (err && err.message)
           ? err.message
           : 'Error de conexión. Verifica tu internet e intenta nuevamente.';
-        showGlobalError(msg);
+        mostrarErrorGlobal(msg);
       });
+  }
+
+  // Muestra error debajo del botón (no hay #formError en el HTML, usa alert como fallback)
+  function mostrarErrorGlobal(msg) {
+    // Intentar mostrar en un elemento existente o crear uno temporal
+    var existing = document.getElementById('form-global-error');
+    if (!existing) {
+      existing = document.createElement('p');
+      existing.id = 'form-global-error';
+      existing.style.cssText = 'color:#f87171;margin-top:1rem;text-align:center;font-size:0.9rem;';
+      var actions = document.querySelector('.form-actions');
+      if (actions) actions.appendChild(existing);
+    }
+    existing.textContent = '⚠ ' + msg;
+    existing.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
   // ── Init ─────────────────────────────────────────────────────────────────────
   function init() {
-    var form = document.getElementById('incidenciaForm'); // ID real en form.html
-    if (!form) return;
+    var form = document.getElementById('incident-form');   // ← CORREGIDO (era 'incidenciaForm')
+    if (!form) {
+      console.warn('[HelpDeskForm] No se encontró #incident-form en el DOM.');
+      return;
+    }
 
-    form.addEventListener('submit', handleSubmitFinal);
+    form.addEventListener('submit', handleSubmit);
     attachRealtime();
     updateCharCount();
 
-    console.log('[HelpDeskForm] Formulario inicializado correctamente.');
+    console.log('[HelpDeskForm] ✅ Formulario inicializado. Webhook:', HelpDeskAPI ? HelpDeskAPI.getConfig().webhookUrl : 'api.js no cargado');
   }
 
   if (document.readyState === 'loading') {
@@ -286,7 +232,6 @@
     init();
   }
 
-  // Exponer para debugging
   window.HelpDeskForm = { validators: validators };
 
 })();
