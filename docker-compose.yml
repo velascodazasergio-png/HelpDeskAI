@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+
+  # ─── PostgreSQL ────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: helpdesk_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: helpdesk
+      POSTGRES_USER: helpdesk_user
+      POSTGRES_PASSWORD: helpdesk_pass123   # ← Cambia esto en producción
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./n8n/database.sql:/docker-entrypoint-initdb.d/init.sql  # Crea la tabla automáticamente
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U helpdesk_user -d helpdesk"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - helpdesk_net
+
+  # ─── n8n ──────────────────────────────────────────────────────────────────
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: helpdesk_n8n
+    restart: unless-stopped
+    environment:
+      # Base de datos para n8n (sus propios datos internos)
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: helpdesk
+      DB_POSTGRESDB_USER: helpdesk_user
+      DB_POSTGRESDB_PASSWORD: helpdesk_pass123
+
+      # URL pública de n8n (ajusta si usas dominio propio)
+      N8N_HOST: localhost
+      N8N_PORT: 5678
+      N8N_PROTOCOL: http
+      WEBHOOK_URL: http://localhost:5678/
+
+      # Seguridad básica (opcional pero recomendado)
+      N8N_BASIC_AUTH_ACTIVE: "true"
+      N8N_BASIC_AUTH_USER: admin
+      N8N_BASIC_AUTH_PASSWORD: admin123     # ← Cambia esto
+
+      # Zona horaria Colombia
+      GENERIC_TIMEZONE: America/Bogota
+      TZ: America/Bogota
+
+      # Logs
+      N8N_LOG_LEVEL: info
+    ports:
+      - "5679:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - helpdesk_net
+
+  # ─── Frontend (servidor estático simple) ──────────────────────────────────
+  frontend:
+    image: nginx:alpine
+    container_name: helpdesk_frontend
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    volumes:
+      - ./:/usr/share/nginx/html:ro          # Tu proyecto va aquí
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - n8n
+    networks:
+      - helpdesk_net
+
+# ─── Volúmenes persistentes ────────────────────────────────────────────────
+volumes:
+  postgres_data:
+  n8n_data:
+
+# ─── Red interna ───────────────────────────────────────────────────────────
+networks:
+  helpdesk_net:
+    driver: bridge
