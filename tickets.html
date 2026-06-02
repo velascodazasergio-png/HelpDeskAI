@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mis Tickets — HelpDesk AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+</head>
+<body class="dashboard-page">
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar navbar--dark" id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <span class="logo-icon">⬡</span>
+        <span class="logo-text">HelpDesk<span class="logo-accent">AI</span></span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="tickets.html" class="nav-active">Mis Tickets</a></li>
+        <li><a href="form.html" class="nav-cta">Nueva Incidencia</a></li>
+      </ul>
+      <button class="nav-hamburger" id="hamburger" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===== DASHBOARD MAIN ===== -->
+  <main class="dashboard-main">
+
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+      <div class="container">
+        <div class="dh-content">
+          <div>
+            <h1 class="dh-title">Panel de Tickets</h1>
+            <p class="dh-sub">Consulta y gestiona el estado de tus incidencias técnicas</p>
+          </div>
+          <a href="form.html" class="btn btn--primary">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Nueva incidencia
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container dashboard-container">
+
+      <!-- Stats bar -->
+      <div class="stats-bar">
+        <div class="stat-pill" id="statTotal">
+          <span class="sp-num">0</span>
+          <span class="sp-label">Total</span>
+        </div>
+        <div class="stat-pill stat-pill--open" id="statOpen">
+          <span class="sp-num">0</span>
+          <span class="sp-label">Abiertos</span>
+        </div>
+        <div class="stat-pill stat-pill--progress" id="statProgress">
+          <span class="sp-num">0</span>
+          <span class="sp-label">En progreso</span>
+        </div>
+        <div class="stat-pill stat-pill--resolved" id="statResolved">
+          <span class="sp-num">0</span>
+          <span class="sp-label">Resueltos</span>
+        </div>
+      </div>
+
+      <!-- Search & Filter Panel -->
+      <div class="search-panel">
+        <div class="search-row">
+          <div class="search-input-wrap">
+            <svg class="search-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input
+              type="text"
+              id="searchInput"
+              class="search-input"
+              placeholder="Buscar por número de ticket, nombre o descripción..."
+            />
+            <button class="search-clear" id="searchClear" title="Limpiar búsqueda" hidden>
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+          <button class="btn btn--ghost btn--icon" id="filterToggle" title="Filtros">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+            Filtros
+          </button>
+        </div>
+
+        <div class="filter-row" id="filterRow" hidden>
+          <div class="filter-group">
+            <label class="filter-label">Estado</label>
+            <select id="filterEstado" class="filter-select">
+              <option value="">Todos</option>
+              <option value="Abierto">Abierto</option>
+              <option value="En progreso">En progreso</option>
+              <option value="En espera">En espera</option>
+              <option value="Resuelto">Resuelto</option>
+              <option value="Cerrado">Cerrado</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Prioridad</label>
+            <select id="filterPrioridad" class="filter-select">
+              <option value="">Todas</option>
+              <option value="Critica">Crítica</option>
+              <option value="Alta">Alta</option>
+              <option value="Media">Media</option>
+              <option value="Baja">Baja</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Categoría IA</label>
+            <select id="filterCategoria" class="filter-select">
+              <option value="">Todas</option>
+              <option value="Red">Red</option>
+              <option value="Hardware">Hardware</option>
+              <option value="Software">Software</option>
+              <option value="Seguridad">Seguridad</option>
+              <option value="Email">Email</option>
+              <option value="Accesos">Accesos</option>
+            </select>
+          </div>
+          <button class="btn btn--ghost btn--sm" id="clearFilters">Limpiar filtros</button>
+        </div>
+      </div>
+
+      <!-- Ticket lookup card -->
+      <div class="lookup-card">
+        <div class="lookup-icon">🔍</div>
+        <div class="lookup-content">
+          <h3>Consultar ticket específico</h3>
+          <p>Ingresa el número de ticket para ver todos los detalles</p>
+        </div>
+        <div class="lookup-form">
+          <div class="lookup-input-wrap">
+            <span class="lookup-prefix">#</span>
+            <input
+              type="text"
+              id="ticketLookup"
+              class="lookup-input"
+              placeholder="TK-0000"
+              maxlength="10"
+            />
+          </div>
+          <button class="btn btn--primary" id="lookupBtn">
+            Consultar
+          </button>
+        </div>
+      </div>
+
+      <!-- Ticket detail modal result -->
+      <div class="ticket-detail-panel" id="ticketDetailPanel" hidden>
+        <div class="tdp-header">
+          <div class="tdp-title-row">
+            <h3 id="tdpTicketNum">—</h3>
+            <button class="tdp-close" id="tdpClose">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+          <div class="tdp-badges" id="tdpBadges"></div>
+        </div>
+        <div class="tdp-body" id="tdpBody"></div>
+      </div>
+
+      <!-- Tickets Grid -->
+      <div class="tickets-section">
+        <div class="ts-header">
+          <h2 class="ts-title">Incidencias recientes</h2>
+          <div class="ts-view-toggle">
+            <button class="view-btn view-btn--active" id="viewGrid" title="Vista de tarjetas">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            </button>
+            <button class="view-btn" id="viewList" title="Vista de lista">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="tickets-grid" id="ticketsGrid">
+          <!-- Tickets rendered by JS -->
+        </div>
+
+        <div class="no-results" id="noResults" hidden>
+          <div class="nr-icon">🔍</div>
+          <h3>No se encontraron tickets</h3>
+          <p>Intenta con otros filtros o registra una nueva incidencia</p>
+          <a href="form.html" class="btn btn--primary">Registrar incidencia</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ===== TICKET MODAL ===== -->
+  <div class="modal-overlay" id="modalOverlay" hidden>
+    <div class="modal" id="ticketModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <h2 class="modal-title" id="modalTitle">Detalles del Ticket</h2>
+          <span class="modal-ticket-num" id="modalTicketNum"></span>
+        </div>
+        <button class="modal-close" id="modalClose" aria-label="Cerrar">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- Populated by JS -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn--ghost" id="modalClosBtn">Cerrar</button>
+        <a href="form.html" class="btn btn--primary">Nueva incidencia</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
