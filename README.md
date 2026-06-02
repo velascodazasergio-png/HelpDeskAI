@@ -13,6 +13,15 @@
 
 ---
 
+## 👥 Integrantes
+
+| Nombre | Rol |
+|--------|-----|
+| **Sergio Velasco Daza** | Desarrollador |
+| **Jonatan Sarmiento** | Desarrollador |
+
+---
+
 ## 📋 Descripción
 
 HelpDesk AI es una plataforma empresarial completa para la gestión de incidencias técnicas que integra:
@@ -38,6 +47,214 @@ HelpDesk AI es una plataforma empresarial completa para la gestión de incidenci
 | ✅ **Validación TypeScript** | Validaciones robustas en frontend |
 | 🌙 **Dark Mode** | Diseño corporativo oscuro moderno |
 | 📱 **Mobile First** | Completamente responsive |
+
+---
+
+## 🖼️ Capturas de Pantalla
+
+### Vista Principal del n8n
+<!-- Agregar enlace de imagen aquí -->
+![Vista Principal](https://i.ibb.co/gc0TskN/Captura-de-pantalla-2026-06-02-175021.png)
+
+### Formulario de Incidencia
+<!-- Agregar enlace de imagen aquí -->
+![Formulario](https://i.ibb.co/wrYXY0kk/Captura-de-pantalla-2026-06-02-175951.png)
+
+### Dashboard de Tickets
+<!-- Agregar enlace de imagen aquí -->
+![Dashboard](https://i.ibb.co/tMT2j5JL/Captura-de-pantalla-2026-06-02-180034.png)
+
+### Notificación Telegram
+<!-- Agregar enlace de imagen aquí -->
+![Telegram](https://i.ibb.co/Xx6yL89h/Captura-de-pantalla-2026-06-02-180106.png)
+
+---
+
+## 🔄 JSON del Flujo N8N
+
+> Importar este JSON directamente en N8N: **Settings → Import Workflow**
+
+```json
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "helpdesk/incidencia",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*",
+          "rawBody": false
+        }
+      },
+      "id": "9d2e6ba3-e0a5-4708-a126-883106d3ea8d",
+      "name": "📥 Recibir Incidencia Web",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "webhookId": "helpdesk-incidencia-webhook"
+    },
+    {
+      "parameters": {
+        "functionCode": "const body = $input.first().json.body || $input.first().json;\nconst required = ['nombre', 'correo', 'telefono', 'area', 'incidencia', 'prioridad', 'descripcion'];\nfor (const field of required) {\n  if (!body[field] || body[field].toString().trim() === '') {\n    throw new Error(`Campo requerido faltante: ${field}`);\n  }\n}\nconst emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\nif (!emailRegex.test(body.correo)) {\n  throw new Error('Correo electrónico inválido: ' + body.correo);\n}\nif (body.descripcion.trim().length < 10) {\n  throw new Error('Descripción demasiado corta');\n}\nconst ticketNumber = body.ticket_number || `TK-${Date.now().toString(36).toUpperCase()}-${Math.floor(Math.random()*9999)}`;\nconst now = new Date();\nreturn [{ json: { ticket_number: ticketNumber, nombre: body.nombre.trim(), correo: body.correo.trim().toLowerCase(), telefono: body.telefono.trim(), area: body.area.trim(), incidencia: body.incidencia.trim(), prioridad: body.prioridad.trim(), descripcion: body.descripcion.trim(), estado: 'Abierto', timestamp_n8n: now.toISOString(), timestamp_original: body.timestamp || now.toISOString(), origen: body.origen || 'web', metadata: body.metadata || {} } }];"
+      },
+      "id": "543ba744-7c0d-4e6f-b23c-8d7e42d6432e",
+      "name": "🔍 Validar y Enriquecer Datos",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [224, 0]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO tickets (ticket_number, nombre, correo, telefono, area, incidencia, prioridad, descripcion, estado, fecha_creacion) VALUES ('{{ $json.ticket_number }}', '{{ $json.nombre }}', '{{ $json.correo }}', '{{ $json.telefono }}', '{{ $json.area }}', '{{ $json.incidencia }}', '{{ $json.prioridad }}', '{{ $json.descripcion }}', 'Abierto', NOW()) RETURNING id, ticket_number, fecha_creacion;",
+        "options": {}
+      },
+      "id": "01831eac-7939-474f-9c70-8fbc1016a818",
+      "name": "💾 Guardar Ticket en PostgreSQL",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [432, 0],
+      "credentials": {
+        "postgres": { "id": "RHVs2sU2TaqHAW6z", "name": "Postgres account" }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "const dbResult = $input.first().json;\nconst ticketData = $node['🔍 Validar y Enriquecer Datos'].json;\nreturn [{ json: { ...ticketData, db_id: dbResult.id, db_fecha: dbResult.fecha_creacion } }];"
+      },
+      "id": "581b15e7-d528-480b-be44-4d58b2aa4af3",
+      "name": "🔗 Combinar Datos Ticket + DB",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [656, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $credentials.httpHeaderAuth.value }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"model\":\"gpt-4o-mini\",\"temperature\":0.3,\"max_tokens\":500,\"response_format\":{\"type\":\"json_object\"},\"messages\":[{\"role\":\"system\",\"content\":\"Eres un sistema experto en soporte técnico IT. Analiza incidencias y responde ÚNICAMENTE en JSON válido con esta estructura exacta:\\n{\\\"categoria\\\": string, \\\"prioridad\\\": string, \\\"resumen\\\": string, \\\"sugerencia\\\": string, \\\"respuesta_usuario\\\": string}\\n\\nCATEGORÍAS VÁLIDAS: Hardware, Software, Red/Conectividad, Acceso/Seguridad, Periféricos, Comunicaciones, General\\nPRIORIDADES: Crítica, Alta, Media, Baja\\n\\nREGLAS:\\n1. resumen: máximo 100 palabras, tercera persona\\n2. sugerencia: accionable, máximo 50 palabras\\n3. respuesta_usuario: formal, empática, en español\"},{\"role\":\"user\",\"content\":\"=Analiza esta incidencia técnica:\\n\\nTipo: {{ $json.incidencia }}\\nÁrea afectada: {{ $json.area }}\\nPrioridad reportada: {{ $json.prioridad }}\\nDescripción: {{ $json.descripcion }}\\n\\nResponde en JSON.\"}]}",
+        "options": { "timeout": 30000 }
+      },
+      "id": "e88d8840-2ab6-401e-a934-94dd98cebce0",
+      "name": "🤖 Analizar con OpenAI GPT-4",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [880, 0],
+      "credentials": {
+        "httpHeaderAuth": { "id": "Ymyo8NQuiRrSb5Mp", "name": "Header Auth account" }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "const openaiResponse = $input.first().json;\nconst ticketData = $node['🔗 Combinar Datos Ticket + DB'].json;\nlet ia;\ntry {\n  const content = openaiResponse.choices[0].message.content;\n  const cleaned = content.replace(/```json/g, '').replace(/```/g, '').trim();\n  ia = JSON.parse(cleaned);\n  if (!ia.categoria) ia.categoria = ticketData.incidencia;\n  if (!ia.prioridad) ia.prioridad = ticketData.prioridad;\n  if (!ia.resumen) ia.resumen = `Incidencia de ${ticketData.incidencia} en ${ticketData.area}`;\n  if (!ia.sugerencia) ia.sugerencia = 'Un técnico especializado revisará su caso';\n  if (!ia.respuesta_usuario) ia.respuesta_usuario = `Estimado/a ${ticketData.nombre}, su incidencia ${ticketData.ticket_number} fue registrada correctamente.`;\n} catch (error) {\n  ia = { categoria: ticketData.incidencia, prioridad: ticketData.prioridad, resumen: `Incidencia de ${ticketData.incidencia} reportada en ${ticketData.area}. Análisis manual requerido.`, sugerencia: 'Un técnico especializado revisará su caso y le contactará pronto.', respuesta_usuario: `Estimado/a ${ticketData.nombre}, su incidencia ${ticketData.ticket_number} ha sido registrada exitosamente.` };\n}\nreturn [{ json: { ...ticketData, ia: ia, categoria_ia: ia.categoria, resumen_ia: ia.resumen } }];"
+      },
+      "id": "0d7424f8-97f3-4118-b933-21c998f4b7a4",
+      "name": "🧠 Procesar Respuesta IA",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1104, 0]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE tickets SET categoria_ia = '{{ $json.ia.categoria }}', resumen_ia = '{{ $json.ia.resumen }}' WHERE ticket_number = '{{ $json.ticket_number }}' RETURNING id, ticket_number, categoria_ia, estado;",
+        "options": {}
+      },
+      "id": "4d259d60-7343-4c82-b4df-748551ca0405",
+      "name": "📝 Actualizar Ticket con IA",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [1328, 0],
+      "credentials": {
+        "postgres": { "id": "RHVs2sU2TaqHAW6z", "name": "Postgres account" }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "const dbUpdate = $input.first().json;\nconst allData = $node['🧠 Procesar Respuesta IA'].json;\nreturn [{ json: { ...allData, db_updated: true } }];"
+      },
+      "id": "6967e194-78ac-4258-99af-cd6b07efe2ac",
+      "name": "📦 Preparar Datos Finales",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1552, 0]
+    },
+    {
+      "parameters": {
+        "chatId": "=8546238882",
+        "text": "=🚨 NUEVA INCIDENCIA — HelpDesk AI\n\n🎫 Ticket: {{ $json.ticket_number }}\n⚡ Prioridad: {{ $json.prioridad }}\n📁 Área: {{ $json.area }}\n🔧 Tipo: {{ $json.incidencia }}\n\n👤 Usuario: {{ $json.nombre }}\n📧 {{ $json.correo }}\n📞 {{ $json.telefono }}\n\n🤖 Análisis IA:\n📂 Categoría: {{ $json.ia.categoria }}\n📋 Resumen: {{ $json.ia.resumen }}\n💡 Sugerencia: {{ $json.ia.sugerencia }}\n\n🕒 {{ $json.timestamp_n8n }}",
+        "additionalFields": { "parse_mode": "Markdown" }
+      },
+      "id": "201be9c0-8a2a-4880-b051-4151b24fe278",
+      "name": "📱 Notificar por Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [1744, 0],
+      "credentials": {
+        "telegramApi": { "id": "N0Ikg3qXuwhdEZXI", "name": "Telegram account" }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "const ticketData = $node['📦 Preparar Datos Finales'].json;\nreturn [{ json: { success: true, ticket_number: ticketData.ticket_number, mensaje: 'Incidencia registrada exitosamente. El equipo de soporte fue notificado por Telegram y recibirás confirmación por correo.', ia: { categoria: ticketData.ia.categoria, prioridad: ticketData.ia.prioridad, resumen: ticketData.ia.resumen, sugerencia: ticketData.ia.sugerencia, respuesta_usuario: ticketData.ia.respuesta_usuario }, timestamp: ticketData.timestamp_n8n } }];"
+      },
+      "id": "c34603ef-73a0-4217-9866-095de20edf70",
+      "name": "📋 Preparar Respuesta Final",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1984, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              { "name": "Content-Type", "value": "application/json" },
+              { "name": "Access-Control-Allow-Origin", "value": "*" }
+            ]
+          }
+        }
+      },
+      "id": "f05adb05-0afc-4859-ad40-8c45436e78ea",
+      "name": "✅ Responder al Frontend",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [2208, 0]
+    }
+  ],
+  "connections": {
+    "📥 Recibir Incidencia Web": { "main": [[{ "node": "🔍 Validar y Enriquecer Datos", "type": "main", "index": 0 }]] },
+    "🔍 Validar y Enriquecer Datos": { "main": [[{ "node": "💾 Guardar Ticket en PostgreSQL", "type": "main", "index": 0 }]] },
+    "💾 Guardar Ticket en PostgreSQL": { "main": [[{ "node": "🔗 Combinar Datos Ticket + DB", "type": "main", "index": 0 }]] },
+    "🔗 Combinar Datos Ticket + DB": { "main": [[{ "node": "🤖 Analizar con OpenAI GPT-4", "type": "main", "index": 0 }]] },
+    "🤖 Analizar con OpenAI GPT-4": { "main": [[{ "node": "🧠 Procesar Respuesta IA", "type": "main", "index": 0 }]] },
+    "🧠 Procesar Respuesta IA": { "main": [[{ "node": "📝 Actualizar Ticket con IA", "type": "main", "index": 0 }]] },
+    "📝 Actualizar Ticket con IA": { "main": [[{ "node": "📦 Preparar Datos Finales", "type": "main", "index": 0 }]] },
+    "📦 Preparar Datos Finales": { "main": [[{ "node": "📱 Notificar por Telegram", "type": "main", "index": 0 }]] },
+    "📱 Notificar por Telegram": { "main": [[{ "node": "📋 Preparar Respuesta Final", "type": "main", "index": 0 }]] },
+    "📋 Preparar Respuesta Final": { "main": [[{ "node": "✅ Responder al Frontend", "type": "main", "index": 0 }]] }
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2e5b97dfe6429c931e6826b83b7918fd802287082bc2748fa7811d055cdd6d33"
+  }
+}
+```
 
 ---
 
@@ -67,112 +284,60 @@ helpdesk-system/
 │   ├── form.ts         # Validaciones y envío del formulario
 │   └── ticket.ts       # Lógica de consulta y gestión de tickets
 │
-├── assets/
-│   └── (logos, imágenes)
-│
-├── docs/
-│   ├── arquitectura.md # Arquitectura completa del sistema
-│   ├── flujo-n8n.md    # Documentación del flujo de N8N
-│   └── ia.md           # Documentación del módulo de IA
-│
 ├── n8n/
 │   ├── n8n-workflow.json  # Flujo N8N listo para importar
 │   └── database.sql       # Script de creación de base de datos
 │
-└── README.md           # Este archivo
+└── README.md
 ```
 
 ---
 
 ## 🚀 Inicio Rápido
 
-### 1. Clonar / Descargar el proyecto
+### 1. Clonar el repositorio
 
 ```bash
 git clone https://github.com/tu-usuario/helpdesk-ai.git
 cd helpdesk-ai
 ```
 
-### 2. Abrir en el navegador (modo demo)
-
-El proyecto funciona directamente sin backend. En modo demo, simula las llamadas a N8N con respuestas mock.
+### 2. Abrir en el navegador
 
 ```bash
 # Con servidor local (recomendado)
 npx serve .
 # O con Python
 python3 -m http.server 8080
-# O simplemente abrir index.html en el navegador
 ```
 
-### 3. Configurar N8N (para producción)
+### 3. Configurar N8N
 
-**a) Instalar N8N:**
 ```bash
+# Instalar N8N
 npm install -g n8n
-# o con Docker:
+# O con Docker
 docker run -d --name n8n -p 5678:5678 n8nio/n8n
 ```
 
-**b) Importar el workflow:**
-1. Abrir N8N: `http://localhost:5678`
-2. Settings → Import Workflow
-3. Subir: `n8n/n8n-workflow.json`
+Luego en N8N: **Settings → Import Workflow** → subir `n8n/n8n-workflow.json`
 
-**c) Configurar credenciales en N8N:**
-- ➕ PostgreSQL (host, port, database, user, password)
-- ➕ OpenAI API Key
-- ➕ Telegram Bot Token + Chat ID
-- ➕ SMTP (Gmail u otro proveedor)
+Configurar credenciales:
+- PostgreSQL (host, port, database, user, password)
+- OpenAI API Key
+- Telegram Bot Token + Chat ID
+- SMTP (Gmail u otro)
 
-**d) Actualizar la URL del webhook en el frontend:**
-
-Editar `js/api.js` y `js/form-compiled.js`:
+Actualizar la URL del webhook en `js/api.js`:
 ```javascript
-// Cambiar esta línea:
-const WEBHOOK_URL = "AQUI_WEBHOOK_N8N";
-// Por la URL real de tu N8N:
 const WEBHOOK_URL = "https://tu-n8n.com/webhook/helpdesk/incidencia";
 ```
 
-### 4. Configurar la base de datos
+### 4. Crear la base de datos
 
 ```bash
-# Conectar a PostgreSQL y ejecutar:
 psql -U postgres -d helpdesk -f n8n/database.sql
 ```
-
----
-
-## ⚙️ Configuración de Servicios
-
-### OpenAI
-
-1. Ir a [platform.openai.com](https://platform.openai.com)
-2. API Keys → Create new secret key
-3. Configurar en N8N → Credentials → "OpenAI API" o "HTTP Header Auth"
-
-### Telegram Bot
-
-1. Abrir Telegram y buscar `@BotFather`
-2. Enviar `/newbot`
-3. Seguir instrucciones y guardar el token
-4. Agregar el bot al grupo de soporte
-5. Obtener Chat ID:
-   ```
-   https://api.telegram.org/bot{TU_TOKEN}/getUpdates
-   ```
-6. Configurar en N8N → Credentials → Telegram API
-
-### Gmail SMTP
-
-1. Google Account → Security → 2-Step Verification → App Passwords
-2. Generar contraseña para "Mail"
-3. Configurar en N8N → Credentials → SMTP:
-   - Host: `smtp.gmail.com`
-   - Port: `587`
-   - User: `tu-correo@gmail.com`
-   - Pass: `contraseña-de-app`
 
 ---
 
@@ -255,49 +420,20 @@ Usuario Web → form.html → POST JSON → Webhook N8N
 
 | Tecnología | Versión | Uso |
 |------------|---------|-----|
-| HTML5 | - | Estructura semántica |
-| CSS3 | - | Estilos y animaciones |
+| HTML5 | — | Estructura semántica |
+| CSS3 | — | Estilos y animaciones |
 | JavaScript | ES2020 | Lógica del cliente |
 | TypeScript | 5.x | Tipado y validaciones |
 | N8N | 1.x | Automatización |
-| OpenAI GPT-4o-mini | - | Análisis IA |
+| OpenAI GPT-4o-mini | — | Análisis IA |
 | PostgreSQL | 14+ | Base de datos |
-| Telegram Bot API | - | Notificaciones |
-| Google Fonts | - | Tipografía (Syne + DM Sans) |
-
----
-
-## 📖 Documentación
-
-| Documento | Descripción |
-|-----------|-------------|
-| [Arquitectura](docs/arquitectura.md) | Diseño completo del sistema |
-| [Flujo N8N](docs/flujo-n8n.md) | Documentación nodo por nodo |
-| [Módulo IA](docs/ia.md) | Configuración OpenAI y prompts |
-
----
-
-## 🤝 Contribuir
-
-1. Fork el repositorio
-2. Crear rama: `git checkout -b feature/nueva-funcionalidad`
-3. Commit: `git commit -m 'feat: agregar nueva funcionalidad'`
-4. Push: `git push origin feature/nueva-funcionalidad`
-5. Abrir Pull Request
+| Telegram Bot API | — | Notificaciones |
 
 ---
 
 ## 📄 Licencia
 
 MIT License — Libre para uso educativo y comercial.
-
----
-
-## 👨‍💻 Autor
-
-Desarrollado como proyecto educativo de integración Full Stack + IA + Automatización.
-
-**Stack:** HTML5 + CSS3 + TypeScript + N8N + OpenAI + PostgreSQL + Telegram
 
 ---
 
