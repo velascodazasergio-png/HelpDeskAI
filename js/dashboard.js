@@ -1,6 +1,12 @@
 /**
- * HelpDesk AI — dashboard.js
- * Tickets dashboard logic: search, filter, display, modal
+ * HelpDesk AI — dashboard.js (FIXED)
+ * Fixes aplicados:
+ *  1. els se inicializa DENTRO de init() — garantiza que DOM existe
+ *  2. openModal obtiene refs en tiempo de ejecución, no desde caché
+ *  3. try/catch en innerHTML por si falla la construcción
+ *  4. updateStats con querySelector seguro
+ *  5. Event listeners de modal usan getElementById directo
+ *  6. modalOverlay se verifica con hidden=true al init por seguridad
  */
 
 'use strict';
@@ -20,39 +26,42 @@
     }
   };
 
-  // ===== DOM REFS =====
-  var els = {
-    grid: document.getElementById('ticketsGrid'),
-    noResults: document.getElementById('noResults'),
-    searchInput: document.getElementById('searchInput'),
-    searchClear: document.getElementById('searchClear'),
-    filterToggle: document.getElementById('filterToggle'),
-    filterRow: document.getElementById('filterRow'),
-    filterEstado: document.getElementById('filterEstado'),
-    filterPrioridad: document.getElementById('filterPrioridad'),
-    filterCategoria: document.getElementById('filterCategoria'),
-    clearFilters: document.getElementById('clearFilters'),
-    viewGrid: document.getElementById('viewGrid'),
-    viewList: document.getElementById('viewList'),
-    ticketLookup: document.getElementById('ticketLookup'),
-    lookupBtn: document.getElementById('lookupBtn'),
-    ticketDetailPanel: document.getElementById('ticketDetailPanel'),
-    tdpClose: document.getElementById('tdpClose'),
-    modalOverlay: document.getElementById('modalOverlay'),
-    modal: document.getElementById('ticketModal'),
-    modalClose: document.getElementById('modalClose'),
-    modalClosBtn: document.getElementById('modalClosBtn'),
-    modalTitle: document.getElementById('modalTitle'),
-    modalTicketNum: document.getElementById('modalTicketNum'),
-    modalBody: document.getElementById('modalBody'),
-    statTotal: document.getElementById('statTotal'),
-    statOpen: document.getElementById('statOpen'),
-    statProgress: document.getElementById('statProgress'),
-    statResolved: document.getElementById('statResolved')
-  };
+  // ===== DOM REFS — se asignan en init() para garantizar que el DOM existe =====
+  var els = {};
+
+  function initEls() {
+    els = {
+      grid:            document.getElementById('ticketsGrid'),
+      noResults:       document.getElementById('noResults'),
+      searchInput:     document.getElementById('searchInput'),
+      searchClear:     document.getElementById('searchClear'),
+      filterToggle:    document.getElementById('filterToggle'),
+      filterRow:       document.getElementById('filterRow'),
+      filterEstado:    document.getElementById('filterEstado'),
+      filterPrioridad: document.getElementById('filterPrioridad'),
+      filterCategoria: document.getElementById('filterCategoria'),
+      clearFilters:    document.getElementById('clearFilters'),
+      viewGrid:        document.getElementById('viewGrid'),
+      viewList:        document.getElementById('viewList'),
+      ticketLookup:    document.getElementById('ticketLookup'),
+      lookupBtn:       document.getElementById('lookupBtn'),
+      statTotal:       document.getElementById('statTotal'),
+      statOpen:        document.getElementById('statOpen'),
+      statProgress:    document.getElementById('statProgress'),
+      statResolved:    document.getElementById('statResolved')
+    };
+
+    // Asegurar que el modal empieza oculto siempre
+    var overlay = document.getElementById('modalOverlay');
+    if (overlay) {
+      overlay.hidden = true;
+    }
+    document.body.style.overflow = '';
+  }
 
   // ===== INIT =====
   function init() {
+    initEls();
     loadTickets();
     bindEvents();
   }
@@ -78,11 +87,11 @@
     els.grid.innerHTML = '';
 
     if (state.filtered.length === 0) {
-      els.noResults.hidden = false;
+      if (els.noResults) els.noResults.hidden = false;
       return;
     }
 
-    els.noResults.hidden = true;
+    if (els.noResults) els.noResults.hidden = true;
 
     state.filtered.forEach(function(ticket, index) {
       var card = createTicketCard(ticket, index);
@@ -101,11 +110,9 @@
     card.setAttribute('tabindex', '0');
     card.setAttribute('aria-label', 'Ver detalles del ticket ' + ticket.ticket_number);
 
-    var date = window.HelpDeskUtils
-      ? HelpDeskUtils.formatDate(ticket.fecha_creacion)
-      : new Date(ticket.fecha_creacion).toLocaleDateString('es-CO');
-
-    var sanitize = window.HelpDeskUtils ? HelpDeskUtils.sanitize : function(s) { return s || '—'; };
+    var sanitize   = window.HelpDeskUtils ? HelpDeskUtils.sanitize   : function(s) { return s || '—'; };
+    var formatDate = window.HelpDeskUtils ? HelpDeskUtils.formatDate  : function(d) { return new Date(d).toLocaleDateString('es-CO'); };
+    var date       = formatDate(ticket.fecha_creacion);
 
     card.innerHTML =
       '<div class="ti-header">' +
@@ -140,24 +147,23 @@
 
   // ===== UPDATE STATS =====
   function updateStats() {
-    var total = state.tickets.length;
-    var open = state.tickets.filter(function(t) { return t.estado === 'Abierto'; }).length;
-    var progress = state.tickets.filter(function(t) { return t.estado === 'En progreso'; }).length;
-    var resolved = state.tickets.filter(function(t) { return t.estado === 'Resuelto'; }).length;
-
-    if (els.statTotal) els.statTotal.querySelector('.sp-num').textContent = total;
-    if (els.statOpen) els.statOpen.querySelector('.sp-num').textContent = open;
-    if (els.statProgress) els.statProgress.querySelector('.sp-num').textContent = progress;
-    if (els.statResolved) els.statResolved.querySelector('.sp-num').textContent = resolved;
+    function setNum(el, val) {
+      if (!el) return;
+      var num = el.querySelector('.sp-num');
+      if (num) num.textContent = val;
+    }
+    setNum(els.statTotal,    state.tickets.length);
+    setNum(els.statOpen,     state.tickets.filter(function(t) { return t.estado === 'Abierto'; }).length);
+    setNum(els.statProgress, state.tickets.filter(function(t) { return t.estado === 'En progreso'; }).length);
+    setNum(els.statResolved, state.tickets.filter(function(t) { return t.estado === 'Resuelto'; }).length);
   }
 
   // ===== FILTER & SEARCH =====
   function applyFilters() {
     var query = state.searchQuery.toLowerCase().trim();
-    var f = state.filters;
+    var f     = state.filters;
 
     state.filtered = state.tickets.filter(function(ticket) {
-      // Search
       if (query) {
         var searchable = [
           ticket.ticket_number,
@@ -168,19 +174,11 @@
           ticket.estado,
           ticket.categoria_ia
         ].join(' ').toLowerCase();
-
         if (!searchable.includes(query)) return false;
       }
-
-      // Estado filter
-      if (f.estado && ticket.estado !== f.estado) return false;
-
-      // Prioridad filter
+      if (f.estado    && ticket.estado    !== f.estado)    return false;
       if (f.prioridad && ticket.prioridad !== f.prioridad) return false;
-
-      // Categoría filter
       if (f.categoria && !(ticket.categoria_ia || '').includes(f.categoria)) return false;
-
       return true;
     });
 
@@ -189,17 +187,25 @@
 
   // ===== OPEN MODAL =====
   function openModal(ticket) {
-    if (!els.modalOverlay || !els.modal) return;
+    // Siempre obtener referencias frescas del DOM
+    var overlay = document.getElementById('modalOverlay');
+    var body    = document.getElementById('modalBody');
+    var titleEl = document.getElementById('modalTitle');
+    var numEl   = document.getElementById('modalTicketNum');
 
-    var sanitize = window.HelpDeskUtils ? HelpDeskUtils.sanitize : function(s) { return s || '—'; };
+    if (!overlay || !body) {
+      console.error('[Dashboard] No se encontró #modalOverlay o #modalBody.');
+      return;
+    }
+
+    var sanitize   = window.HelpDeskUtils ? HelpDeskUtils.sanitize  : function(s) { return s || '—'; };
     var formatDate = window.HelpDeskUtils ? HelpDeskUtils.formatDate : function(d) { return new Date(d).toLocaleDateString('es-CO'); };
 
-    if (els.modalTitle) els.modalTitle.textContent = ticket.incidencia + ' — ' + ticket.area;
-    if (els.modalTicketNum) els.modalTicketNum.textContent = ticket.ticket_number;
+    if (titleEl) titleEl.textContent = (ticket.incidencia || '—') + ' — ' + (ticket.area || '—');
+    if (numEl)   numEl.textContent   = ticket.ticket_number || '';
 
-    if (els.modalBody) {
-      els.modalBody.innerHTML =
-        // Información del solicitante
+    try {
+      body.innerHTML =
         '<div class="modal-section">' +
           '<h4 class="modal-section-title">Datos del solicitante</h4>' +
           '<div class="modal-fields">' +
@@ -222,7 +228,6 @@
           '</div>' +
         '</div>' +
 
-        // Detalles de la incidencia
         '<div class="modal-section">' +
           '<h4 class="modal-section-title">Detalles de la incidencia</h4>' +
           '<div class="modal-fields">' +
@@ -232,11 +237,15 @@
             '</div>' +
             '<div class="modal-field">' +
               '<span class="mf-label">Prioridad</span>' +
-              '<span class="mf-value"><span class="badge-priority" data-value="' + sanitize(ticket.prioridad) + '">' + sanitize(ticket.prioridad) + '</span></span>' +
+              '<span class="mf-value">' +
+                '<span class="badge-priority" data-value="' + sanitize(ticket.prioridad) + '">' + sanitize(ticket.prioridad) + '</span>' +
+              '</span>' +
             '</div>' +
             '<div class="modal-field">' +
               '<span class="mf-label">Estado</span>' +
-              '<span class="mf-value"><span class="badge-status" data-value="' + sanitize(ticket.estado) + '">' + sanitize(ticket.estado) + '</span></span>' +
+              '<span class="mf-value">' +
+                '<span class="badge-status" data-value="' + sanitize(ticket.estado) + '">' + sanitize(ticket.estado) + '</span>' +
+              '</span>' +
             '</div>' +
             '<div class="modal-field">' +
               '<span class="mf-label">Fecha</span>' +
@@ -249,13 +258,11 @@
           '</div>' +
         '</div>' +
 
-        // Análisis IA
         '<div class="modal-section">' +
           '<h4 class="modal-section-title">Análisis de Inteligencia Artificial</h4>' +
           '<div class="modal-ai-box">' +
             '<div class="modal-ai-header">' +
-              '<span>✦</span>' +
-              '<span>Clasificación GPT-4</span>' +
+              '<span>✦</span><span>Clasificación GPT-4</span>' +
             '</div>' +
             '<div class="modal-fields">' +
               '<div class="modal-field">' +
@@ -273,24 +280,25 @@
             '</div>' +
           '</div>' +
         '</div>';
+    } catch (e) {
+      console.error('[Dashboard] Error al construir modal body:', e);
+      body.innerHTML = '<p style="color:#fca5a5;padding:1rem;">Error al cargar los detalles del ticket.</p>';
     }
 
-    els.modalOverlay.hidden = false;
+    overlay.hidden = false;
     document.body.style.overflow = 'hidden';
 
-    // Focus trap
     setTimeout(function() {
-      var closeBtn = els.modal.querySelector('.modal-close');
+      var closeBtn = document.getElementById('modalClose');
       if (closeBtn) closeBtn.focus();
     }, 100);
   }
 
   // ===== CLOSE MODAL =====
   function closeModal() {
-    if (els.modalOverlay) {
-      els.modalOverlay.hidden = true;
-      document.body.style.overflow = '';
-    }
+    var overlay = document.getElementById('modalOverlay');
+    if (overlay) overlay.hidden = true;
+    document.body.style.overflow = '';
   }
 
   // ===== TICKET LOOKUP =====
@@ -305,9 +313,7 @@
     if (btn) { btn.disabled = true; btn.textContent = 'Buscando...'; }
 
     HelpDeskAPI.consultarTicket(num)
-      .then(function(ticket) {
-        openModal(ticket);
-      })
+      .then(function(ticket) { openModal(ticket); })
       .catch(function(err) {
         if (window.HelpDeskUtils) HelpDeskUtils.showToast(err.message || 'Ticket no encontrado', 'error');
       })
@@ -332,13 +338,12 @@
             if (els.searchClear) els.searchClear.hidden = !state.searchQuery;
             applyFilters();
           };
-
       els.searchInput.addEventListener('input', debouncedSearch);
     }
 
     if (els.searchClear) {
       els.searchClear.addEventListener('click', function() {
-        els.searchInput.value = '';
+        if (els.searchInput) els.searchInput.value = '';
         state.searchQuery = '';
         els.searchClear.hidden = true;
         applyFilters();
@@ -353,36 +358,31 @@
       });
     }
 
-    // Filters
     if (els.filterEstado) {
       els.filterEstado.addEventListener('change', function() {
-        state.filters.estado = this.value;
-        applyFilters();
+        state.filters.estado = this.value; applyFilters();
       });
     }
     if (els.filterPrioridad) {
       els.filterPrioridad.addEventListener('change', function() {
-        state.filters.prioridad = this.value;
-        applyFilters();
+        state.filters.prioridad = this.value; applyFilters();
       });
     }
     if (els.filterCategoria) {
       els.filterCategoria.addEventListener('change', function() {
-        state.filters.categoria = this.value;
-        applyFilters();
+        state.filters.categoria = this.value; applyFilters();
       });
     }
 
-    // Clear filters
     if (els.clearFilters) {
       els.clearFilters.addEventListener('click', function() {
         state.filters = { estado: '', prioridad: '', categoria: '' };
         state.searchQuery = '';
-        if (els.filterEstado) els.filterEstado.value = '';
+        if (els.filterEstado)    els.filterEstado.value    = '';
         if (els.filterPrioridad) els.filterPrioridad.value = '';
         if (els.filterCategoria) els.filterCategoria.value = '';
-        if (els.searchInput) els.searchInput.value = '';
-        if (els.searchClear) els.searchClear.hidden = true;
+        if (els.searchInput)     els.searchInput.value     = '';
+        if (els.searchClear)     els.searchClear.hidden    = true;
         applyFilters();
       });
     }
@@ -391,44 +391,35 @@
     if (els.viewGrid) {
       els.viewGrid.addEventListener('click', function() {
         state.view = 'grid';
-        els.grid.classList.remove('list-view');
+        if (els.grid) els.grid.classList.remove('list-view');
         els.viewGrid.classList.add('view-btn--active');
-        els.viewList.classList.remove('view-btn--active');
+        if (els.viewList) els.viewList.classList.remove('view-btn--active');
       });
     }
     if (els.viewList) {
       els.viewList.addEventListener('click', function() {
         state.view = 'list';
-        els.grid.classList.add('list-view');
+        if (els.grid) els.grid.classList.add('list-view');
         els.viewList.classList.add('view-btn--active');
-        els.viewGrid.classList.remove('view-btn--active');
+        if (els.viewGrid) els.viewGrid.classList.remove('view-btn--active');
       });
     }
 
     // Ticket lookup
-    if (els.lookupBtn) {
-      els.lookupBtn.addEventListener('click', lookupTicket);
-    }
-    if (els.ticketLookup) {
-      els.ticketLookup.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') lookupTicket();
-      });
-    }
+    if (els.lookupBtn)    els.lookupBtn.addEventListener('click', lookupTicket);
+    if (els.ticketLookup) els.ticketLookup.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') lookupTicket();
+    });
 
-    // Modal close
-    if (els.modalClose) {
-      els.modalClose.addEventListener('click', closeModal);
-    }
-    if (els.modalClosBtn) {
-      els.modalClosBtn.addEventListener('click', closeModal);
-    }
-    if (els.modalOverlay) {
-      els.modalOverlay.addEventListener('click', function(e) {
-        if (e.target === els.modalOverlay) closeModal();
-      });
-    }
+    // Modal close — listener delegado en document para evitar refs rotas
+    document.addEventListener('click', function(e) {
+      var id = e.target && e.target.id;
+      if (id === 'modalClose' || id === 'modalClosBtn' || id === 'modalOverlay') {
+        closeModal();
+      }
+    });
 
-    // Keyboard
+    // ESC cierra el modal
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') closeModal();
     });
