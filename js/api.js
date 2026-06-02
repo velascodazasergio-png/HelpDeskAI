@@ -23,7 +23,7 @@ var HelpDeskAPI = (function() {
    * 4. Copia la URL del webhook
    * 5. Pégala aquí
    */
-  var WEBHOOK_URL = 'AQUI_WEBHOOK_N8N';
+  var WEBHOOK_URL = 'http://localhost:5679/webhook-test/helpdesk/incidencia';
 
   /**
    * URL para consulta de tickets (endpoint de tu API o N8N)
