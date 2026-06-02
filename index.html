@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HelpDesk AI — Sistema de Gestión de Incidencias</title>
+  <meta name="description" content="Sistema automatizado de soporte técnico con inteligencia artificial, N8N y Telegram." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <span class="logo-icon">⬡</span>
+        <span class="logo-text">HelpDesk<span class="logo-accent">AI</span></span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#beneficios">Beneficios</a></li>
+        <li><a href="#funcionamiento">¿Cómo funciona?</a></li>
+        <li><a href="tickets.html">Mis Tickets</a></li>
+        <li><a href="form.html" class="nav-cta">Registrar Incidencia</a></li>
+      </ul>
+      <button class="nav-hamburger" id="hamburger" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="hero-bg-grid"></div>
+    <div class="hero-orb hero-orb--1"></div>
+    <div class="hero-orb hero-orb--2"></div>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        Sistema activo · IA integrada
+      </div>
+      <h1 class="hero-title">
+        Soporte técnico<br />
+        <em>inteligente</em> y automatizado
+      </h1>
+      <p class="hero-subtitle">
+        Registra incidencias, obtén clasificación automática con IA, seguimiento
+        en tiempo real y notificaciones directas a Telegram. Todo sin intervención manual.
+      </p>
+      <div class="hero-actions">
+        <a href="form.html" class="btn btn--primary btn--lg">
+          <span>Registrar Incidencia</span>
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="tickets.html" class="btn btn--ghost btn--lg">
+          Consultar mis tickets
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-num">98%</span>
+          <span class="stat-label">Clasificación precisa</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-num">&lt;2s</span>
+          <span class="stat-label">Tiempo de respuesta</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-num">24/7</span>
+          <span class="stat-label">Monitoreo continuo</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="ticket-card ticket-card--float">
+        <div class="tc-header">
+          <span class="tc-badge tc-badge--alta">ALTA</span>
+          <span class="tc-id">#TK-2847</span>
+        </div>
+        <p class="tc-title">Falla de conectividad en servidor principal</p>
+        <div class="tc-ai">
+          <span class="tc-ai-icon">✦</span>
+          <span>IA: Red · Revisar switch principal</span>
+        </div>
+        <div class="tc-footer">
+          <span class="tc-status tc-status--open">En progreso</span>
+          <span class="tc-time">hace 3 min</span>
+        </div>
+      </div>
+      <div class="ticket-card ticket-card--float ticket-card--secondary">
+        <div class="tc-header">
+          <span class="tc-badge tc-badge--media">MEDIA</span>
+          <span class="tc-id">#TK-2846</span>
+        </div>
+        <p class="tc-title">Error en aplicativo de facturación</p>
+        <div class="tc-ai">
+          <span class="tc-ai-icon">✦</span>
+          <span>IA: Software · Reiniciar servicio</span>
+        </div>
+        <div class="tc-footer">
+          <span class="tc-status tc-status--resolved">Resuelto</span>
+          <span class="tc-time">hace 18 min</span>
+        </div>
+      </div>
+      <div class="telegram-notif">
+        <span class="tg-icon">✈</span>
+        <div>
+          <p class="tg-title">Telegram notificado</p>
+          <p class="tg-sub">Ticket #TK-2847 asignado</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== BENEFICIOS ===== -->
+  <section class="benefits" id="beneficios">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Por qué elegirnos</span>
+        <h2 class="section-title">Todo lo que necesita tu equipo de soporte</h2>
+        <p class="section-sub">Automatización real, no promesas. Cada incidencia procesada, clasificada y asignada en segundos.</p>
+      </div>
+      <div class="benefits-grid">
+        <div class="benefit-card benefit-card--featured">
+          <div class="benefit-icon">⚡</div>
+          <h3>Registro ultrarrápido</h3>
+          <p>Formulario optimizado que captura toda la información necesaria en menos de 60 segundos. Sin fricciones, sin pasos innecesarios.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">🤖</div>
+          <h3>Clasificación con IA</h3>
+          <p>OpenAI GPT analiza cada incidencia, detecta categoría, urgencia y genera un resumen ejecutivo automáticamente.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">✈</div>
+          <h3>Notificaciones Telegram</h3>
+          <p>Tu equipo recibe alertas instantáneas en Telegram con el ticket completo, prioridad y sugerencia de solución.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">🔄</div>
+          <h3>Seguimiento automatizado</h3>
+          <p>N8N orquesta todo el flujo: validación, almacenamiento, análisis IA, notificaciones y actualización de estado.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">📊</div>
+          <h3>Gestión eficiente</h3>
+          <p>Panel de tickets con estado en tiempo real. Consulta, filtra y gestiona todas las incidencias desde un solo lugar.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">🔒</div>
+          <h3>Seguridad empresarial</h3>
+          <p>HTTPS, validación server-side, sanitización de inputs y logs auditables en cada operación del sistema.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FUNCIONAMIENTO ===== -->
+  <section class="how-it-works" id="funcionamiento">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Flujo del sistema</span>
+        <h2 class="section-title">De incidencia a resolución en segundos</h2>
+        <p class="section-sub">Un pipeline completamente automatizado con inteligencia artificial en el núcleo.</p>
+      </div>
+      <div class="steps-track">
+        <div class="step">
+          <div class="step-number">01</div>
+          <div class="step-content">
+            <div class="step-icon-wrap">
+              <span class="step-icon">📝</span>
+            </div>
+            <h3 class="step-title">Registrar incidencia</h3>
+            <p class="step-desc">El usuario completa el formulario con datos del problema. Validaciones en tiempo real garantizan información completa y correcta.</p>
+          </div>
+          <div class="step-connector"></div>
+        </div>
+        <div class="step">
+          <div class="step-number">02</div>
+          <div class="step-content">
+            <div class="step-icon-wrap">
+              <span class="step-icon">⚙️</span>
+            </div>
+            <h3 class="step-title">N8N recibe información</h3>
+            <p class="step-desc">El Webhook de N8N captura el payload JSON, valida la estructura y los datos antes de procesarlos.</p>
+          </div>
+          <div class="step-connector"></div>
+        </div>
+        <div class="step">
+          <div class="step-number">03</div>
+          <div class="step-content">
+            <div class="step-icon-wrap">
+              <span class="step-icon">🗄️</span>
+            </div>
+            <h3 class="step-title">Base de datos almacena ticket</h3>
+            <p class="step-desc">PostgreSQL registra la incidencia con número de ticket único, timestamp y todos los metadatos del caso.</p>
+          </div>
+          <div class="step-connector"></div>
+        </div>
+        <div class="step">
+          <div class="step-number">04</div>
+          <div class="step-content">
+            <div class="step-icon-wrap step-icon-wrap--ai">
+              <span class="step-icon">✦</span>
+            </div>
+            <h3 class="step-title">IA analiza la incidencia</h3>
+            <p class="step-desc">OpenAI GPT clasifica la categoría, determina urgencia, genera resumen ejecutivo y sugiere solución inicial.</p>
+          </div>
+          <div class="step-connector"></div>
+        </div>
+        <div class="step">
+          <div class="step-number">05</div>
+          <div class="step-content">
+            <div class="step-icon-wrap">
+              <span class="step-icon">✈</span>
+            </div>
+            <h3 class="step-title">Telegram recibe notificación</h3>
+            <p class="step-desc">El bot de Telegram envía el ticket completo al canal de soporte con toda la información generada por la IA.</p>
+          </div>
+          <div class="step-connector"></div>
+        </div>
+        <div class="step">
+          <div class="step-number">06</div>
+          <div class="step-content">
+            <div class="step-icon-wrap">
+              <span class="step-icon">📡</span>
+            </div>
+            <h3 class="step-title">Seguimiento del ticket</h3>
+            <p class="step-desc">El usuario recibe confirmación por email y puede consultar el estado de su ticket en tiempo real desde el portal.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== IA SECTION ===== -->
+  <section class="ai-section">
+    <div class="container">
+      <div class="ai-inner">
+        <div class="ai-text">
+          <span class="section-tag section-tag--light">Inteligencia Artificial</span>
+          <h2 class="section-title section-title--light">GPT analiza cada incidencia automáticamente</h2>
+          <p class="section-sub section-sub--light">Sin intervención humana, la IA clasifica, prioriza y genera respuestas en tiempo real para cada ticket registrado.</p>
+          <ul class="ai-features">
+            <li><span class="ai-check">✓</span> Detección automática de categoría</li>
+            <li><span class="ai-check">✓</span> Clasificación de urgencia (Baja / Media / Alta / Crítica)</li>
+            <li><span class="ai-check">✓</span> Resumen ejecutivo de la incidencia</li>
+            <li><span class="ai-check">✓</span> Sugerencia de solución inicial</li>
+            <li><span class="ai-check">✓</span> Respuesta automática al usuario</li>
+          </ul>
+          <a href="form.html" class="btn btn--primary">Probar ahora</a>
+        </div>
+        <div class="ai-output">
+          <div class="ai-output-header">
+            <span class="ao-dot ao-dot--red"></span>
+            <span class="ao-dot ao-dot--yellow"></span>
+            <span class="ao-dot ao-dot--green"></span>
+            <span class="ao-title">Respuesta IA · GPT-4</span>
+          </div>
+          <pre class="ai-code"><span class="code-brace">{</span>
+  <span class="code-key">"categoria"</span>: <span class="code-str">"Red"</span>,
+  <span class="code-key">"prioridad"</span>: <span class="code-str">"Alta"</span>,
+  <span class="code-key">"resumen"</span>: <span class="code-str">"Falla de conectividad
+    en oficina principal"</span>,
+  <span class="code-key">"sugerencia"</span>: <span class="code-str">"Revisar switch
+    principal y cables"</span>,
+  <span class="code-key">"respuesta_usuario"</span>: <span class="code-str">"Su incidencia
+    fue clasificada como
+    alta prioridad..."</span>
+<span class="code-brace">}</span></pre>
+          <div class="ai-processing">
+            <div class="proc-bar">
+              <div class="proc-fill"></div>
+            </div>
+            <span class="proc-label">Procesado en 1.2s</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CTA ===== -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-inner">
+        <h2 class="cta-title">¿Listo para automatizar tu soporte técnico?</h2>
+        <p class="cta-sub">Registra tu primera incidencia y experimenta el poder de la automatización con IA.</p>
+        <a href="form.html" class="btn btn--primary btn--lg">
+          Registrar incidencia ahora
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="nav-logo">
+            <span class="logo-icon">⬡</span>
+            <span class="logo-text">HelpDesk<span class="logo-accent">AI</span></span>
+          </a>
+          <p class="footer-desc">Sistema automatizado de gestión de incidencias con inteligencia artificial, N8N y Telegram.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Sistema</h4>
+          <ul>
+            <li><a href="form.html">Registrar incidencia</a></li>
+            <li><a href="tickets.html">Consultar tickets</a></li>
+            <li><a href="#funcionamiento">Cómo funciona</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h4>Tecnología</h4>
+          <ul>
+            <li><a href="#">N8N Automation</a></li>
+            <li><a href="#">OpenAI GPT</a></li>
+            <li><a href="#">Telegram Bot</a></li>
+            <li><a href="#">PostgreSQL</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h4>Documentación</h4>
+          <ul>
+            <li><a href="docs/arquitectura.md">Arquitectura</a></li>
+            <li><a href="docs/flujo-n8n.md">Flujo N8N</a></li>
+            <li><a href="docs/ia.md">Módulo IA</a></li>
+            <li><a href="README.md">README</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2025 HelpDesk AI · Sistema de Gestión de Incidencias Técnicas</p>
+        <p>Construido con N8N · OpenAI · Telegram · PostgreSQL</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
