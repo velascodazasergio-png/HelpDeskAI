@@ -54,7 +54,9 @@ HelpDesk AI es una plataforma empresarial completa para la gestión de incidenci
 ---
 
 ## 🖼️ Capturas de Pantalla
+### pagina principal
 
+![](https://i.ibb.co/211bVH3Z/Captura-de-pantalla-2026-06-02-180624.png)
 ### Vista Principal del n8n
 <!-- Agregar enlace de imagen aquí -->
 ![Vista Principal](https://i.ibb.co/gc0TskN/Captura-de-pantalla-2026-06-02-175021.png)
