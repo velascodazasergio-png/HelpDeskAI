@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registrar Incidencia — HelpDesk AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/form.css" />
+</head>
+<body class="form-page">
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar navbar--dark" id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <span class="logo-icon">⬡</span>
+        <span class="logo-text">HelpDesk<span class="logo-accent">AI</span></span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="tickets.html">Mis Tickets</a></li>
+        <li><a href="form.html" class="nav-cta nav-cta--active">Registrar Incidencia</a></li>
+      </ul>
+      <button class="nav-hamburger" id="hamburger" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===== FORM SECTION ===== -->
+  <main class="form-main">
+    <div class="form-layout">
+
+      <!-- Sidebar Info -->
+      <aside class="form-sidebar">
+        <div class="sidebar-content">
+          <div class="sidebar-badge">
+            <span class="badge-dot"></span> Sistema activo
+          </div>
+          <h1 class="sidebar-title">Registra tu<br /><em>incidencia técnica</em></h1>
+          <p class="sidebar-desc">Completa el formulario con la mayor cantidad de detalles posible. La IA analizará tu caso y notificará al equipo de soporte en segundos.</p>
+          <div class="sidebar-steps">
+            <div class="ss-step ss-step--active">
+              <div class="ss-dot">1</div>
+              <span>Completa el formulario</span>
+            </div>
+            <div class="ss-line"></div>
+            <div class="ss-step">
+              <div class="ss-dot">2</div>
+              <span>N8N procesa tu solicitud</span>
+            </div>
+            <div class="ss-line"></div>
+            <div class="ss-step">
+              <div class="ss-dot">3</div>
+              <span>IA clasifica tu incidencia</span>
+            </div>
+            <div class="ss-line"></div>
+            <div class="ss-step">
+              <div class="ss-dot">4</div>
+              <span>Telegram notifica al equipo</span>
+            </div>
+            <div class="ss-line"></div>
+            <div class="ss-step">
+              <div class="ss-dot">5</div>
+              <span>Recibes confirmación</span>
+            </div>
+          </div>
+          <div class="sidebar-note">
+            <span class="note-icon">✦</span>
+            <p>La IA generará automáticamente una clasificación de tu incidencia al momento de recibirla.</p>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Form -->
+      <div class="form-wrapper">
+        <div class="form-card">
+          <div class="form-card-header">
+            <h2>Nueva Incidencia</h2>
+            <p>Todos los campos marcados con <span class="required-mark">*</span> son obligatorios</p>
+          </div>
+
+          <form id="incidenciaForm" class="incidencia-form" novalidate>
+
+            <!-- Sección 1: Datos Personales -->
+            <fieldset class="form-section">
+              <legend class="form-section-title">
+                <span class="fs-number">01</span>
+                Datos del solicitante
+              </legend>
+
+              <div class="form-row form-row--2">
+                <div class="form-group" id="fg-nombre">
+                  <label for="nombre" class="form-label">Nombre completo <span class="required-mark">*</span></label>
+                  <div class="input-wrap">
+                    <span class="input-icon">
+                      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </span>
+                    <input
+                      type="text"
+                      id="nombre"
+                      name="nombre"
+                      class="form-input"
+                      placeholder="Ej: Carlos Rodríguez"
+                      autocomplete="name"
+                      required
+                      minlength="3"
+                      maxlength="100"
+                    />
+                  </div>
+                  <span class="form-error" id="error-nombre"></span>
+                </div>
+
+                <div class="form-group" id="fg-correo">
+                  <label for="correo" class="form-label">Correo electrónico <span class="required-mark">*</span></label>
+                  <div class="input-wrap">
+                    <span class="input-icon">
+                      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 7L2 7"/></svg>
+                    </span>
+                    <input
+                      type="email"
+                      id="correo"
+                      name="correo"
+                      class="form-input"
+                      placeholder="correo@empresa.com"
+                      autocomplete="email"
+                      required
+                    />
+                  </div>
+                  <span class="form-error" id="error-correo"></span>
+                </div>
+              </div>
+
+              <div class="form-row form-row--2">
+                <div class="form-group" id="fg-telefono">
+                  <label for="telefono" class="form-label">Teléfono <span class="required-mark">*</span></label>
+                  <div class="input-wrap">
+                    <span class="input-icon">
+                      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    </span>
+                    <input
+                      type="tel"
+                      id="telefono"
+                      name="telefono"
+                      class="form-input"
+                      placeholder="(+57) 300 000 0000"
+                      autocomplete="tel"
+                      required
+                    />
+                  </div>
+                  <span class="form-error" id="error-telefono"></span>
+                </div>
+
+                <div class="form-group" id="fg-area">
+                  <label for="area" class="form-label">Área afectada <span class="required-mark">*</span></label>
+                  <div class="input-wrap">
+                    <span class="input-icon">
+                      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                    </span>
+                    <select id="area" name="area" class="form-input form-select" required>
+                      <option value="" disabled selected>Selecciona un área</option>
+                      <option value="Sistemas">Sistemas / TI</option>
+                      <option value="Administracion">Administración</option>
+                      <option value="Contabilidad">Contabilidad</option>
+                      <option value="Ventas">Ventas</option>
+                      <option value="Recursos Humanos">Recursos Humanos</option>
+                      <option value="Produccion">Producción</option>
+                      <option value="Logistica">Logística</option>
+                      <option value="Gerencia">Gerencia</option>
+                      <option value="Otro">Otro</option>
+                    </select>
+                    <span class="select-arrow">
+                      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+                    </span>
+                  </div>
+                  <span class="form-error" id="error-area"></span>
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- Sección 2: Detalles de la Incidencia -->
+            <fieldset class="form-section">
+              <legend class="form-section-title">
+                <span class="fs-number">02</span>
+                Detalles de la incidencia
+              </legend>
+
+              <div class="form-row form-row--2">
+                <div class="form-group" id="fg-incidencia">
+                  <label for="incidencia" class="form-label">Tipo de incidencia <span class="required-mark">*</span></label>
+                  <div class="input-wrap">
+                    <span class="input-icon">
+                      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                    </span>
+                    <select id="incidencia" name="incidencia" class="form-input form-select" required>
+                      <option value="" disabled selected>Selecciona el tipo</option>
+                      <option value="Hardware">Hardware (equipos físicos)</option>
+                      <option value="Software">Software (aplicaciones)</option>
+                      <option value="Red">Red / Conectividad</option>
+                      <option value="Seguridad">Seguridad informática</option>
+                      <option value="Email">Correo electrónico</option>
+                      <option value="Impresoras">Impresoras / Periféricos</option>
+                      <option value="Telefonia">Telefonía / VoIP</option>
+                      <option value="Accesos">Accesos / Permisos</option>
+                      <option value="Base de Datos">Base de Datos</option>
+                      <option value="Otro">Otro</option>
+                    </select>
+                    <span class="select-arrow">
+                      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+                    </span>
+                  </div>
+                  <span class="form-error" id="error-incidencia"></span>
+                </div>
+
+                <div class="form-group" id="fg-prioridad">
+                  <label for="prioridad" class="form-label">Prioridad percibida <span class="required-mark">*</span></label>
+                  <div class="input-wrap">
+                    <span class="input-icon">
+                      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    </span>
+                    <select id="prioridad" name="prioridad" class="form-input form-select" required>
+                      <option value="" disabled selected>Selecciona prioridad</option>
+                      <option value="Baja">🟢 Baja — No urgente</option>
+                      <option value="Media">🟡 Media — Moderada</option>
+                      <option value="Alta">🔴 Alta — Urgente</option>
+                      <option value="Critica">⛔ Crítica — Sistema caído</option>
+                    </select>
+                    <span class="select-arrow">
+                      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+                    </span>
+                  </div>
+                  <span class="form-error" id="error-prioridad"></span>
+                </div>
+              </div>
+
+              <div class="form-group form-group--full" id="fg-descripcion">
+                <label for="descripcion" class="form-label">
+                  Descripción detallada <span class="required-mark">*</span>
+                  <span class="label-hint">Mínimo 30 caracteres</span>
+                </label>
+                <div class="textarea-wrap">
+                  <textarea
+                    id="descripcion"
+                    name="descripcion"
+                    class="form-input form-textarea"
+                    placeholder="Describe detalladamente el problema: ¿Cuándo comenzó? ¿Qué estabas haciendo? ¿Qué equipos o sistemas están afectados? ¿Cuántos usuarios están impactados?"
+                    required
+                    minlength="30"
+                    maxlength="2000"
+                    rows="5"
+                  ></textarea>
+                </div>
+                <div class="textarea-footer">
+                  <span class="form-error" id="error-descripcion"></span>
+                  <span class="char-count" id="charCount">0 / 2000</span>
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- Submit -->
+            <div class="form-actions">
+              <div class="form-disclaimer">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                Al enviar, la IA clasificará tu incidencia automáticamente y el equipo recibirá la notificación vía Telegram.
+              </div>
+              <button type="submit" class="btn btn--primary btn--submit" id="submitBtn">
+                <span class="btn-text">Registrar Incidencia</span>
+                <span class="btn-loading" hidden>
+                  <span class="spinner"></span>
+                  Procesando...
+                </span>
+                <svg class="btn-arrow" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+
+            <!-- Error general -->
+            <div class="form-alert form-alert--error" id="formError" hidden>
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+              <p id="formErrorMsg">Error al enviar la incidencia. Por favor intenta nuevamente.</p>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    // Compilado de TypeScript inline (form.ts compilado)
+    // En producción, compilar form.ts con tsc y referenciar form.js
+  </script>
+  <script src="js/form-compiled.js"></script>
+</body>
+</html>
